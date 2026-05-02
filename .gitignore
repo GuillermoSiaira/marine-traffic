@@ -1,0 +1,13 @@
+.env
+*.pyc
+__pycache__/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.parquet
+data/
+*.csv
+ocean_nft_address.txt

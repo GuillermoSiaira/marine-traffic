@@ -1,0 +1,131 @@
+---
+# Akash Network deployment — Stack Definition Language
+# Runs the AIS collector 24/7 with persistent storage.
+# Deploy: akash tx deployment create infra/akash/deploy.sdl.yml --from <wallet>
+
+version: "2.0"
+
+services:
+  collector:
+    image: ghcr.io/guillermosiaira/marine-traffic-collector:latest
+    expose:
+      - port: 8000
+        as: 8000
+        to:
+          - global: false   # Prometheus metrics, internal only
+    env:
+      - AISSTREAM_API_KEY=REPLACE_ME
+      - PINATA_JWT=REPLACE_ME
+      - DATA_DIR=/data/raw
+      - PROCESSED_DIR=/data/processed
+      - FLUSH_INTERVAL_SECONDS=600
+      - FLUSH_MAX_MESSAGES=50000
+      - BOUNDING_BOXES=[[[-90,-180],[90,180]]]
+    params:
+      storage:
+        data:
+          mount: /data
+          readOnly: false
+
+  processor:
+    image: ghcr.io/guillermosiaira/marine-traffic-processor:latest
+    env:
+      - DATA_DIR=/data/raw
+      - PROCESSED_DIR=/data/processed
+      - PINATA_JWT=REPLACE_ME
+    params:
+      storage:
+        data:
+          mount: /data
+          readOnly: false
+
+  publisher:
+    image: ghcr.io/guillermosiaira/marine-traffic-publisher:latest
+    env:
+      - PROCESSED_DIR=/data/processed
+      - DATA_DIR=/data
+      - PINATA_JWT=REPLACE_ME
+      - OCEAN_PRIVATE_KEY=REPLACE_ME
+      - OCEAN_NETWORK=polygon
+    params:
+      storage:
+        data:
+          mount: /data
+          readOnly: false
+
+profiles:
+  compute:
+    collector:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          - size: 1Gi          # OS
+          - name: data
+            size: 50Gi         # ~3 months of raw data
+            attributes:
+              persistent: true
+              class: beta3
+
+    processor:
+      resources:
+        cpu:
+          units: 1.0
+        memory:
+          size: 2Gi
+        storage:
+          - size: 1Gi
+          - name: data
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+    publisher:
+      resources:
+        cpu:
+          units: 0.25
+        memory:
+          size: 256Mi
+        storage:
+          - size: 1Gi
+          - name: data
+            size: 50Gi
+            attributes:
+              persistent: true
+              class: beta3
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      signedBy:
+        anyOf:
+          - "akash1365yvmc4s7awdyj3n2sav7xfx76adc6dnmlx63"
+          - "akash18qa2a2ltfyvkyj0ggj3hkvuj6twzyumuaru9s4"
+      pricing:
+        collector:
+          denom: uakt
+          amount: 1000       # ~$0.50/day at current rates
+        processor:
+          denom: uakt
+          amount: 500
+        publisher:
+          denom: uakt
+          amount: 200
+
+deployment:
+  collector:
+    akash:
+      profile: collector
+      count: 1
+  processor:
+    akash:
+      profile: processor
+      count: 1
+  publisher:
+    akash:
+      profile: publisher
+      count: 1

@@ -1,0 +1,46 @@
+services:
+
+  collector:
+    build: ./collector
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ais_data:/data
+    ports:
+      - "8000:8000"   # Prometheus metrics
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  processor:
+    build: ./processor
+    env_file: .env
+    volumes:
+      - ais_data:/data
+    profiles: ["batch"]   # only runs when explicitly called
+    command: ["--date", "yesterday"]
+
+  publisher:
+    build: ./publisher
+    env_file: .env
+    volumes:
+      - ais_data:/data
+    profiles: ["batch"]
+    depends_on:
+      - processor
+    command: ["--date", "yesterday"]
+
+  # Cron container: runs processor + publisher daily at 02:00 UTC
+  scheduler:
+    image: mcuadros/ofelia:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./infra/ofelia.ini:/etc/ofelia/config.ini:ro
+
+volumes:
+  ais_data:
+    driver: local
