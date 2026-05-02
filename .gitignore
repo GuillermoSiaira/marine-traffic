@@ -11,3 +11,4 @@ venv/
 data/
 *.csv
 ocean_nft_address.txt
+.claude/

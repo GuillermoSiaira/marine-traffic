@@ -20,6 +20,7 @@ import structlog
 from dotenv import load_dotenv
 
 from port_index import PortIndex, PORT_RADIUS_NM
+from quality_check import check_quality, save_quality_report
 
 load_dotenv()
 log = structlog.get_logger()
@@ -287,7 +288,12 @@ def process_date(date: datetime):
     od = build_od_matrix(voyages)
     save(od, out_dir / f"od_matrix_{date_str}.parquet")
 
-    log.info("processing_complete", date=date_str, output=str(out_dir))
+    # Quality report
+    report = check_quality(df, date_str)
+    save_quality_report(report, out_dir)
+
+    log.info("processing_complete", date=date_str, output=str(out_dir),
+             quality_score=report.overall_quality_score)
 
 
 if __name__ == "__main__":
