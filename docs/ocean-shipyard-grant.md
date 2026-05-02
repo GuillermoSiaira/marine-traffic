@@ -88,9 +88,22 @@ reconstruction does not.
 | Development and maintenance (part-time) | $1,300 | $15,600 |
 | **Total** | | **~$30,000** |
 
-After 12 months, the project is self-sustaining through datatoken sales on Ocean Market:
-researchers and institutions that need API-level access purchase datatokens,
-funding ongoing satellite AIS costs. The base dataset remains CC-BY open access forever.
+After 12 months, the project pursues multi-source sustainability rather than relying
+on a single revenue stream. Ocean Market datatoken sales provide a first revenue layer,
+but the primary path to ongoing funding is:
+
+- **Follow-on grants:** The Filecoin Foundation Grant Program and EU Horizon Europe
+  both fund open scientific data infrastructure. A working dataset with one year of
+  satellite coverage and documented academic use is a strong basis for both.
+- **Academic partnerships:** Universities and research institutes routinely fund
+  access to proprietary datasets; an open alternative with a citable methodology
+  is attractive to economics and operations research departments.
+- **NGO partnerships:** Organizations such as Global Fishing Watch, Transparency
+  International, and environmental compliance bodies have operational need for
+  longitudinal AIS data and budgets to fund it.
+
+The base dataset remains CC-BY open access permanently regardless of funding outcome.
+Datatokens gate only the premium satellite tier and Compute-to-Data features.
 
 ---
 
@@ -208,7 +221,9 @@ all data is CC-BY.
 | Port pairs in O-D matrix | >50,000 |
 | GitHub stars | >500 |
 | Academic citations / uses | >10 |
-| Datatoken sales (self-sustaining threshold) | >$800/month |
+| Datatoken sales | >$200/month |
+| Follow-on grant applications submitted | ≥2 (Filecoin Foundation, EU Horizon) |
+| Academic or NGO partnerships initiated | ≥1 |
 | Ocean Market dataset downloads | >1,000 |
 
 ---
